@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Generator Hub</title>
+<style>
+body {font-family: Arial, sans-serif; background: radial-gradient(circle at top,#0f172a,#020617); color:white; text-align:center; margin:0}
+h1 {margin:20px 0; text-shadow:0 0 10px #38bdf8}
+.section {margin:20px auto; max-width:700px; padding:15px; border:2px solid #38bdf8; border-radius:12px; box-shadow:0 0 15px #0ea5e9}
+button {padding:10px 20px; font-size:16px; border:none; border-radius:8px; background:#22c55e; color:white; cursor:pointer}
+button:hover {background:#16a34a}
+input {padding:10px; margin:5px; border-radius:6px; border:none}
+#wheelResult,#challengeResult,#videoResult {margin-top:20px; font-size:20px}
+.hidden {display:none}
+
+/* Wheel */
+#wheelContainer {position:relative; width:250px; height:250px; margin:20px auto}
+#wheel {
+ width:100%; height:100%; border-radius:50%;
+ border:5px solid #38bdf8;
+ transition: transform 3s cubic-bezier(0.2,0.8,0.2,1);
+}
+#pointer {
+ position:absolute; top:-10px; left:50%; transform:translateX(-50%);
+ width:0; height:0;
+ border-left:10px solid transparent;
+ border-right:10px solid transparent;
+ border-bottom:20px solid red;
+}
+
+/* Recording */
+#recordingOverlay {position:fixed; top:10px; left:10px; background:red; padding:8px 15px; border-radius:8px; display:none}
+
+@media(max-width:600px){
+ .section{margin:10px; padding:10px}
+ button{width:100%; margin-top:5px}
+ input{width:90%}
+}
+</style>
+</head>
+<body>
+
+<div id="recordingOverlay">● REC</div>
+<h1>🎮 Ultimate Generator Hub</h1>
+
+<!-- SECTION 1 -->
+<div class="section">
+<h2>🎡 Real Spin Wheel</h2>
+<input id="wheelInput" placeholder="Enter item">
+<button onclick="addItem()">Add</button>
+<button onclick="spinWheel()">Spin</button>
+<div id="wheelContainer">
+<div id="pointer"></div>
+<div id="wheel"></div>
+</div>
+<div id="wheelResult"></div>
+</div>
+
+<!-- SECTION 2 -->
+<div class="section">
+<h2>🔥 Fortnite Challenge Generator</h2>
+<button onclick="generateChallenge()">Generate Challenge</button>
+<div id="challengeResult">Click to get a challenge</div>
+</div>
+
+<!-- SECTION 3 -->
+<div class="section">
+<h2>🔒 Video Idea Generator</h2>
+<div id="loginBox">
+<input id="user" placeholder="Username">
+<input id="pass" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+</div>
+<div id="videoSection" class="hidden">
+<button onclick="generateVideo()">Generate Idea</button>
+<button onclick="toggleRecording()">Toggle Recording Mode</button>
+<div id="videoResult"></div>
+</div>
+</div>
+
+<script>
+let wheelItems = [];
+let currentRotation = 0;
+
+function addItem(){
+ const val = document.getElementById('wheelInput').value;
+ if(val){
+  wheelItems.push(val);
+  document.getElementById('wheelInput').value='';
+  drawWheel();
+ }
+}
+
+function drawWheel(){
+ const wheel = document.getElementById('wheel');
+ const slice = 360 / wheelItems.length;
+ let gradient = "";
+ for(let i=0;i<wheelItems.length;i++){
+  const start = i * slice;
+  const end = start + slice;
+  const color = i % 2 === 0 ? "#0ea5e9" : "#22c55e";
+  gradient += `${color} ${start}deg ${end}deg,`;
+ }
+ wheel.style.background = `conic-gradient(${gradient.slice(0,-1)})`;
+}
+
+function spinWheel(){
+ if(wheelItems.length===0) return;
+ const wheel = document.getElementById('wheel');
+ const slice = 360 / wheelItems.length;
+ const randIndex = Math.floor(Math.random()*wheelItems.length);
+ const targetDeg = 360 - (randIndex * slice) - (slice/2);
+ const spins = 5 * 360;
+ currentRotation += spins + targetDeg;
+ wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+ setTimeout(()=>{
+  document.getElementById('wheelResult').innerText = wheelItems[randIndex];
+ },3000);
+}
+
+// SECTION 2
+const challenges=[
+"Win using only pistols","No building challenge","Only grey weapons","No healing","Swap weapons every kill","Random loadout","No sprinting","Only first chest loot"
+];
+function generateChallenge(){
+ const rand=Math.floor(Math.random()*challenges.length);
+ document.getElementById('challengeResult').innerText=challenges[rand];
+}
+
+// LOGIN
+function login(){
+ const u=document.getElementById('user').value;
+ const p=document.getElementById('pass').value;
+ if(u==="DasTheGamerYT" && p==="github"){
+  document.getElementById('loginBox').style.display='none';
+  document.getElementById('videoSection').classList.remove('hidden');
+ } else alert('Wrong login');
+}
+
+// VIDEO IDEAS
+const games=["Fortnite","Police Simulator: Patrol Officers","Minecraft","Roblox","Stormworks","Mon Bazou"];
+const formats=["Short","Longform"];
+
+function generateVideo(){
+ const game=games[Math.floor(Math.random()*games.length)];
+ const format=formats[Math.floor(Math.random()*formats.length)];
+ const idea = game + " - " + format;
+ document.getElementById('videoResult').innerText = idea;
+ localStorage.setItem('lastIdea', idea);
+}
+
+window.onload = () => {
+ const saved = localStorage.getItem('lastIdea');
+ if(saved){ document.getElementById('videoResult').innerText = saved; }
+}
+
+function toggleRecording(){
+ const rec = document.getElementById('recordingOverlay');
+ rec.style.display = rec.style.display==='none' ? 'block' : 'none';
+}
+</script>
+
+</body>
+</html>
